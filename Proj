@@ -1,0 +1,53 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import statsmodels.formula.api as smf
+
+df = pd.read_csv('Temp Vs. Bottled Water Consumption.csv')
+country = list(df['Country'])
+temp = list(df['Temperature'])
+cons = list(df['Water'])
+
+plt.scatter(temp,cons)
+plt.xlabel('Temperature In Celsius')
+plt.ylabel('Per Capita Bottled Water Consumption')
+
+
+module = smf.ols(formula ='Water ~ Temperature', data = df)
+print(module)
+result = module.fit()
+print(result)
+summary = result.summary()
+print(summary)
+
+rline = result.fittedvalues
+plt.plot(temp,rline)
+
+#Zach's Polynomial Regression line and Equation fitted to my data
+import numpy as np
+#polynomial fit with degree = 2
+model = np.poly1d(np.polyfit(temp, cons, 2))
+
+#add fitted polynomial line to scatterplot
+polyline = np.linspace(2, 35, 1000)
+plt.scatter(temp,cons)
+plt.plot(polyline, model(polyline))
+plt.xlabel('Temperature In Celsius')
+plt.ylabel('Bottled Water Consumption')
+plt.show()
+
+print(model)
+#Gives us our R-square along with the polynomial regression line function
+def polyfit(x, y, degree):
+    results = {}
+    coeffs = np.polyfit(x, y, degree)
+    p = np.poly1d(coeffs)
+    #calculate r-squared
+    yhat = p(x)
+    ybar = np.sum(y)/len(y)
+    ssreg = np.sum((yhat-ybar)**2)
+    sstot = np.sum((y - ybar)**2)
+    results['r_squared'] = ssreg / sstot
+
+    return results
+
+polyfit(temp, cons, 2)
